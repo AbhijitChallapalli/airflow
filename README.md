@@ -1,6 +1,7 @@
 Real-Time Data Processing with Apache Airflow
 This repository contains the Apache Airflow DAGs designed to fetch and process real-time data from a public API, demonstrating a simple yet powerful use-case of Airflow in data engineering.
-https://github.com/AbhijitChallapalli/airflow/blob/master/demo_airflow.mp4
+
+![](https://github.com/AbhijitChallapalli/airflow/blob/master/demo_airflow.mp4)
 
 ## Project Structure
 The pipeline is structured as follows:
