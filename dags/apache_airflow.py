@@ -1,58 +1,50 @@
+import logging
 from datetime import datetime
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 import uuid
+import requests
+import json
 
+# Set up basic configuration for logging
+logging.basicConfig(level=logging.INFO)
 
 def get_data():
-    import requests
+    response = requests.get("https://randomuser.me/api/")
+    response = response.json()
+    user_data = response['results'][0]
+    return user_data
 
-    res=requests.get("https://randomuser.me/api/")
-    res=res.json()
-    res=res['results'][0]
-    #print(json.dumps(res,indent=3))
-    
-    return res
-
-def format_data(res):
-    data = {}
-    location = res['location']
-    data['id'] = str(uuid.uuid4())
-    data['first_name'] = res['name']['first']
-    data['last_name'] = res['name']['last']
-    data['gender'] = res['gender']
-    data['address'] = f"{str(location['street']['number'])} {location['street']['name']}, {location['city']}, {location['state']}, {location['country']}"
-    data['post_code'] = location['postcode']
-    data['email'] = res['email']
-    data['username'] = res['login']['username']
-    data['dob'] = res['dob']['date']
-    data['registered_date'] = res['registered']['date']
-    data['phone'] = res['phone']
-    data['picture'] = res['picture']['medium']
-
-    return data
+def format_data(user_data):
+    location = user_data['location']
+    formatted_data = {
+        'id': str(uuid.uuid4()),
+        'first_name': user_data['name']['first'],
+        'last_name': user_data['name']['last'],
+        'gender': user_data['gender'],
+        'address': f"{location['street']['number']} {location['street']['name']}, {location['city']}, {location['state']}, {location['country']}",
+        'post_code': location['postcode'],
+        'email': user_data['email'],
+        'username': user_data['login']['username'],
+        'dob': user_data['dob']['date'],
+        'registered_date': user_data['registered']['date'],
+        'phone': user_data['phone'],
+        'picture': user_data['picture']['medium']
+    }
+    return formatted_data
 
 def stream_data():
-    import json
-    res=get_data()
-    res=format_data(res)
-    print(json.dumps(res,indent=3))
-
+    user_data = get_data()
+    formatted_data = format_data(user_data)
+    logging.info(json.dumps(formatted_data, indent=3))
 
 default_args = {
-    'owner':'Abhijit',
-    'start_date':datetime(2024,6,18,13,44)
+    'owner': 'Abhijit',
+    'start_date': datetime(2024, 6, 18, 13, 44)
 }
 
-with DAG('user_automation',
-        default_args=default_args,
-        schedule='@daily',
-        catchup=False) as dag:
-    
-    streaming_task= PythonOperator(
+with DAG('user_automation', default_args=default_args, schedule_interval='@daily', catchup=False) as dag:
+    streaming_task = PythonOperator(
         task_id='stream_data_from_api',
         python_callable=stream_data
     )
-
-stream_data()
-#print(format_data(res=get_data()))
