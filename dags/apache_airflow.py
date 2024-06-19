@@ -40,7 +40,7 @@ def stream_data():
 
 default_args = {
     'owner': 'Abhijit',
-    'start_date': datetime(2024, 6, 18, 13, 44)
+    'start_date': datetime(2024, 6, 19, 1, 35)
 }
 
 with DAG('automation', default_args=default_args, schedule_interval='@daily', catchup=False) as dag:
