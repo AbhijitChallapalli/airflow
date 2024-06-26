@@ -18,7 +18,7 @@ Set Up Environment
 Ensure Python and Apache Airflow are installed on your machine.
 Install required Python packages:
 ```bash
-pip install requests
+pip install requirements.txt
 ```
 Initialize Airflow
 
